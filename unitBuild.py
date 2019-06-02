@@ -19,7 +19,8 @@ def addUnit(db, connSock, jsData):
                 try:
                     cur.execute(
                         "SELECT token, resources FROM Players WHERE id={};".format(idPlayer))
-                    if token != cur.fetchall()[0][0]:
+                    validToken, resources = cur.fetchall()[0]
+                    if token != validToken:
                         connSock.sendall(
                             js.dumps({"type": "WrongAuthInfo"}).encode(
                                 "utf-8"))
@@ -30,7 +31,6 @@ def addUnit(db, connSock, jsData):
                         js.dumps({"type": "WrongAuthInfo"}).encode("utf-8"))
                     connSock.close()
                     return None
-                resources = cur.fetchall()[0][1]
 
                 cur.execute("SELECT hangarSlot FROM Units WHERE hangarId={};".format(idHangar))
                 units = cur.fetchall()

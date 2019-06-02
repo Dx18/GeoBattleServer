@@ -140,10 +140,12 @@ def PLANE_DAMAGE(id, db):
     try:
         with closing(db.getConn()) as dbConn:
             with dbConn.cursor() as cur:
-                cur.execute("SELECT idPlayer FROM Sectors WHERE id={};".format(id))
+                cur.execute("SELECT idSector FROM Buildings WHERE id={};".format(id))
+                idSector = cur.fetchall()[0][0]
+                cur.execute("SELECT idPlayer FROM Sectors WHERE id={};".format(idSector))
                 idPlayer = cur.fetchall()[0][0]
                 cur.execute("SELECT levelP FROM Players WHERE id={};".format(idPlayer))
-                return 5 + cur.fetchall()[0][0]
+                return 10 + cur.fetchall()[0][0]
     except Exception as exc:
         print(exc)
         print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno))
@@ -293,9 +295,13 @@ def fighting(attackerId, victimId, hangars, sector, baseTime, db):
     # Adding unit group moving
     unitGroupMoving = []
     for i in range(reachedCount):
+        if timePoints[-1].planeGroupsHealth[arriveTimes[i][0]] <= 0:
+            returnTime = timePoints[-1].time + 1
+        else:
+            returnTime = timePoints[-1].time + arriveTimes[i][1]
         unitGroupMoving.append(UnitGroupMovingInfo(
             arriveTimes[i][0], arriveTimes[i][1], sector.x, sector.y,
-            timePoints[-1].time + arriveTimes[i][1]
+            returnTime
         ))
     for i in range(reachedCount, len(arriveTimes) - 1):
         hangarX = hangars[arriveTimes[i][0]].x

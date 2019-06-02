@@ -20,7 +20,8 @@ def build(db, connSock, jsData):
                 try:
                     cur.execute(
                         "SELECT token, resources FROM Players WHERE id={};".format(idPlayer))
-                    if token != cur.fetchall()[0][0]:
+                    validToken, resources = cur.fetchall()[0]
+                    if token != validToken:
                         connSock.sendall(
                             js.dumps({"type": "WrongAuthInfo"}).encode(
                                 "utf-8"))
@@ -31,7 +32,6 @@ def build(db, connSock, jsData):
                         js.dumps({"type": "WrongAuthInfo"}).encode("utf-8"))
                     connSock.close()
                     return None
-                resources = cur.fetchall()[0][1]
 
                 if buildType == 'Mine':
                     sx = 5
@@ -170,10 +170,11 @@ def destroy(db, connSock, jsData):
                     return None
 
                 cur.execute("SELECT x, y, type, idSector FROM Buildings WHERE id={};".format(idB))
-                type = cur.fetchall()[0][2]
-                x = cur.fetchall()[0][0]
-                y = cur.fetchall()[0][1]
-                idSector = cur.fetchall()[0][3]
+                x, y, type, idSector = cur.fetchall()[0]
+#                type = cur.fetchall()[0][2]
+#                x = cur.fetchall()[0][0]
+#                y = cur.fetchall()[0][1]
+#                idSector = cur.fetchall()[0][3]
 
                 cur.execute("SELECT idPlayer FROM Sectors WHERE id={};".format(idSector))
                 idPlayerB = cur.fetchall()[0][0]

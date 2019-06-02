@@ -134,20 +134,24 @@ def atack(db, connSock, jsData):
                 if sh <= 0:
                     myRules["sectorDid"].append(vSector)
 
-                cur.execute("INSERT INTO Attacks (timeStop, json, myRuleJson) VALUES ({}, '{}', '{}');".format(
+                cur.execute("INSERT INTO Attacks (timeStop, json, myRuleJson) VALUES ({}, '{}', '{}') RETURNING id;".format(
                     timeStop, fightingResult, js.dumps(myRules)))
+                idMyAttack = cur.fetchall()[0][0]
+                d["id"] = idMyAttack
+                cur.execute(
+                    "UPDATE Attacks SET json='{}' WHERE id = {};".format(js.dumps(d), idMyAttack))
+
+
                 cur.execute("UPDATE Sectors SET isBlocked = 1 WHERE id = {};".format(vSector))
 
                 for idHan in idHangars:
-                    isb = cur.execute("SELECT idSector FROM Buildings WHERE id={};".format(idHan)).fetchall()[0][0]
+                    isb = cur.execute("SELECT idSector FROM Buildings WHERE id={};".format(idHan))
+                    isb = cur.fetchall()[0][0]
                     cur.execute("UPDATE Sectors SET isBlocked = 1 WHERE id = {};".format(isb))
 
                 d = {"type": "AttackStarted", "attackScript": d}
-                cur.execute("INSERT INTO Updater (timeT, json) VALUES ({}, '{}') RETURNING id;".format(
+                cur.execute("INSERT INTO Updater (timeT, json) VALUES ({}, '{}');".format(
                     trunc(d["attackScript"]["timePoints"][-1]["time"]), js.dumps(d)))
-                idMyAttack = cur.fetchall()[0][0]
-                d["attackScript"]["id"] = idMyAttack
-                cur.execute("UPDATE Attacks SET json='{}' WHERE id = {};".format(js.dumps(d).encode("utf-8"), idMyAttack))
                 connSock.sendall(js.dumps(d).encode("utf-8"))
                 connSock.close()
                 return None

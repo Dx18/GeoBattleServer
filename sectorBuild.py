@@ -19,7 +19,8 @@ def sectorBuild(db, connSock, jsData):
                 try:
                     cur.execute(
                         "SELECT token, resources FROM Players WHERE id={};".format(idPlayer))
-                    if token != cur.fetchall()[0][0]:
+                    validToken, resources = cur.fetchall()[0]
+                    if token != validToken:
                         connSock.sendall(
                             js.dumps({"type": "WrongAuthInfo"}).encode(
                                 "utf-8"))
@@ -30,10 +31,9 @@ def sectorBuild(db, connSock, jsData):
                         js.dumps({"type": "WrongAuthInfo"}).encode("utf-8"))
                     connSock.close()
                     return None
-                resources = cur.fetchall()[0][1]
 
                 cur.execute(
-                    "SELECT id, x, y FROM Sectors WHERE id={};".format(idPlayer))
+                    "SELECT x, y FROM Sectors WHERE idPlayer={};".format(idPlayer))
                 mySectors = cur.fetchall()
                 cash = 50 + 25 * len(mySectors)
                 if resources < cash:
@@ -57,7 +57,7 @@ def sectorBuild(db, connSock, jsData):
                         if mySector[0] == xbs and mySector[1] == ybs:
                             exists = True
 
-                canBuild = isNeighbour and not exists
+                    canBuild = isNeighbour and not exists
 
                 if canBuild:
                     pass

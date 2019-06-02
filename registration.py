@@ -94,7 +94,7 @@ def authorization(db, connSock, jsData):
                         cur.execute(
                             "UPDATE Players SET token = '{}' WHERE id = {};".format(token, data[i][0]))
                         d = {"type": "Success", "authInfo": {}}
-                        d["authInfo"]['id'] = i
+                        d["authInfo"]['id'] = data[i][0]
                         d["authInfo"]['token'] = token
                         connSock.sendall(js.dumps(d).encode("utf-8"))
                         connSock.close()
@@ -133,6 +133,13 @@ def emailConfirmationEvent(db, connSock, jsData):
                     connSock.close()
                     return None
                 if i != code:
+                    if t - 1 == 0:
+                        cur.execute("DELETE FROM Players WHERE name='{}'".format(name))
+                        connSock.sendall(
+                            js.dumps({"type": "WrongCode", "triesLeft": t - 1}).encode("utf-8"))
+                        connSock.close()
+                        return None
+                
                     cur.execute(
                         "UPDATE Players SET tries = {} WHERE name = '{}';".format(t - 1, name))
                     connSock.sendall(

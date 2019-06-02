@@ -6,6 +6,7 @@ def newDb(db):
     with closing(db.getConn()) as dbConn:
         with dbConn.cursor() as cur:
             try:
+                cur.execute("DROP TABLE IF EXISTS Players")
                 cur.execute(
                     """CREATE TABLE Players (
                         id SERIAL PRIMARY KEY,
@@ -13,9 +14,9 @@ def newDb(db):
                         password varchar(255),
                         token varchar(255),
                         email varchar(255),
-                        r integer,
-                        g integer,
-                        b integer,
+                        r real,
+                        g real,
+                        b real,
                         resources integer,
                         levelT integer,
                         levelG integer,
@@ -25,6 +26,7 @@ def newDb(db):
                         )
                         """)
 
+                cur.execute("DROP TABLE IF EXISTS Sectors")
                 cur.execute(
                     """CREATE TABLE Sectors (
                         id SERIAL PRIMARY KEY,
@@ -35,6 +37,7 @@ def newDb(db):
                         )
                         """)  # isBlocked is 0 or 1. 1==BLOCKED
 
+                cur.execute("DROP TABLE IF EXISTS Buildings")
                 cur.execute(
                     """CREATE TABLE Buildings (
                         id SERIAL PRIMARY KEY,
@@ -46,6 +49,7 @@ def newDb(db):
                         )
                         """)
 
+                cur.execute("DROP TABLE IF EXISTS Units")
                 cur.execute(
                     """CREATE TABLE Units (
                         id SERIAL PRIMARY KEY,
@@ -54,6 +58,7 @@ def newDb(db):
                         )
                         """)
 
+                cur.execute("DROP TABLE IF EXISTS Attacks")
                 cur.execute(
                     """CREATE TABLE Attacks (
                         id SERIAL PRIMARY KEY,
@@ -62,6 +67,8 @@ def newDb(db):
                         myRuleJson TEXT
                         )
                         """)
+                        
+                cur.execute("DROP TABLE IF EXISTS Updater")
                 cur.execute(
                     """CREATE TABLE Updater (
                         id SERIAL PRIMARY KEY,

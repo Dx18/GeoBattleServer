@@ -18,6 +18,8 @@ import research
 import state
 import update
 from atack import atack
+import vsp
+import updater
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,15 +36,24 @@ if "-s" in params.keys():
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
     context.load_cert_chain(certfile="cert.pem", keyfile="key.pem")
     m = True
+else:
+    m = False
 print("Server uses postgresql!")
 dbName = str(input("Enter database name: "))
 dbUser = str(input("Enter database user: "))
 password = str(getpass.getpass("Enter password user: "))
 host = "localhost"
 db = dbClass.dbParam(dbName, dbUser, password, host)
-resourcesTime = time.time()
 if "-c" in params.keys():
     dbNew.newDb(db)
+
+thread = Thread(target=vsp.streamUpdate,
+                        args=(db, ))
+thread.start()
+
+thread = Thread(target=vsp.apply,
+                        args=(db, ))
+thread.start()
 
 
 print("Server start on ip={} and port={}".format(ip, port))
@@ -102,7 +113,7 @@ while True:
                 thread = Thread(target=unitBuild.addUnit,
                                 args=(db, connSock, jsData, ))
                 thread.start()
-            elif jsData['type'] == 'RatingRequestSuccess':
+            elif jsData['type'] == 'RatingRequestEvent':
                 thread = Thread(target=getRating.getRating,
                                 args=(db, connSock, jsData, ))
                 thread.start()
@@ -112,6 +123,10 @@ while True:
                 thread.start()
             elif jsData['type'] == 'StateRequestEvent':
                 thread = Thread(target=state.state,
+                                args=(db, connSock, jsData, ))
+                thread.start()
+            elif jsData['type'] == 'UpdateRequestEvent':
+                thread = Thread(target=updater.updater,
                                 args=(db, connSock, jsData, ))
                 thread.start()
             elif jsData['type'] == 'AttackEvent':
@@ -124,9 +139,6 @@ while True:
             continue
 
     except Exception as exc:
-        thread = Thread(target=applyChanges,
-                        args=(db, ))
-        thread.start()
-        resourcesTime = update.update(db, resourcesTime)
+        pass
 
     continue

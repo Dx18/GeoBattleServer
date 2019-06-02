@@ -8,23 +8,23 @@ def getRating(db, connSock, jsData):
         with closing(db.getConn()) as dbConn:
             with dbConn.cursor() as cur:
 
-                idPlayer = jsData["authInfo"]["id"]
-                token = jsData["authInfo"]["token"]
-
-                try:
-                    cur.execute(
-                        "SELECT token FROM Players WHERE id={};".format(idPlayer))
-                    if token != cur.fetchall()[0][0]:
-                        connSock.sendall(
-                            js.dumps({"type": "WrongAuthInfo"}).encode(
-                                "utf-8"))
-                        connSock.close()
-                        return None
-                except Exception as exc:
-                    connSock.sendall(
-                        js.dumps({"type": "WrongAuthInfo"}).encode("utf-8"))
-                    connSock.close()
-                    return None
+#                idPlayer = jsData["authInfo"]["id"]
+#                token = jsData["authInfo"]["token"]
+#
+#                try:
+#                    cur.execute(
+#                        "SELECT token FROM Players WHERE id={};".format(idPlayer))
+#                    if token != cur.fetchall()[0][0]:
+#                        connSock.sendall(
+#                            js.dumps({"type": "WrongAuthInfo"}).encode(
+#                                "utf-8"))
+#                        connSock.close()
+#                        return None
+#                except Exception as exc:
+#                    connSock.sendall(
+#                        js.dumps({"type": "WrongAuthInfo"}).encode("utf-8"))
+#                    connSock.close()
+#                    return None
 
                 d = {"type": "RatingRequestSuccess"}
                 d["rating"] = []

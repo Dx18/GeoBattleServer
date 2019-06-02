@@ -101,7 +101,7 @@ def state(db, connSock, jsData):
 
                 connSock.sendall(js.dumps(d).encode("utf-8"))
                 connSock.close()
-                return None
+                return js.dumps(d).encode("utf-8")
 
     except Exception as exc:
         print(exc)

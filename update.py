@@ -4,13 +4,10 @@ from math import trunc
 import time
 
 
-def update(db, pTime):
+def update(db):
     try:
         with closing(db.getConn()) as dbConn:
             with dbConn.cursor() as cur:
-
-                if trunc(time.time() - pTime) < 8:
-                    return pTime
                 cur.execute("SELECT id, resources FROM Players;")
                 players = cur.fetchall()
                 for player in players:
@@ -28,9 +25,10 @@ def update(db, pTime):
                         cur.execute("SELECT type FROM Buildings WHERE idSector={};".format(idSector))
                         buildings = cur.fetchall()
                         cur.execute("SELECT levelG FROM Players WHERE id={};".format(id))
+                        levelG = cur.fetchall()[0][0]
                         for build in buildings:
                             if build[0] == 'Generator':
-                                en += 30 + cur.fetchall()[0][0]
+                                en += 30 + levelG
                             elif build[0] == 'Mine':
                                 en -= 5
                                 re += 1

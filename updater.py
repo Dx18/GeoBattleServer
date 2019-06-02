@@ -32,17 +32,14 @@ def updater(db, connSock, jsData):
                 text = cur.fetchall()
 
                 if jsData["lastUpdateTime"] + 10 <= time.time():
-                    d = {"type": "StateRequestSuccess"}
-                    d["gameState"] = dict(js.loads(stateEvent(jsData).decode("utf-8")))["gameState"]
-                    connSock.sendall(js.dumps(d).encode("utf-8"))
-                    connSock.close()
+                    stateEvent(db, connSock, jsData)
                     return None
 
                 d = {"type": "UpdateRequestSuccess"}
                 cur.execute("SELECT resources FROM Players WHERE id={};".format(id))
                 d["resources"] = cur.fetchall()[0][0]
                 d["playerId"] = id
-                d["time"] = time()
+                d["time"] = time.time()
                 d["researchInfo"] = {}
                 cur.execute("SELECT levelT FROM Players WHERE id={};".format(id))
                 d["researchInfo"]["turretDamageLevel"] = cur.fetchall()[0][0]
